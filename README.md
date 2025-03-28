@@ -1,102 +1,102 @@
-# Reed-Solomon編碼器
+# Reed-Solomon Encoder
 
-## 1. 專案概述
+## 1. Project Overview
 
-本專案實現了一個用 Go 語言編寫的 Reed-Solomon 錯誤更正碼編碼器。Reed-Solomon碼是一種前向錯誤更正（FEC）碼，廣泛用於數位存儲和通信系統中，以檢測和更正數據傳輸或存儲過程中的錯誤。
+This project implements a Reed-Solomon error correction code encoder in Go. Reed-Solomon codes are a type of forward error correction (FEC) codes widely used in digital storage and communication systems to detect and correct errors during data transmission or storage.
 
-編碼器接受一個消息並生成冗餘的奇偶校驗數據，這些數據可以用來恢復原始消息，即使其中的部分數據受到損壞（在一定限度內）。此實現使用系統性編碼方法，意味著原始數據作為編碼輸出的第一部分被保留。
+The encoder takes a message and produces redundant parity data that can be used to recover the original message even if parts of it are corrupted (up to a certain limit). This implementation uses a systematic encoding approach, meaning the original data is preserved as the first part of the encoded output.
 
-主要特點：
-- 實現了 Galois Field GF(2^8) 算術運算
-- 支持可配置的數據分片和奇偶校驗分片
-- 支持 JSON 輸入/輸出
-- 系統性編碼（保留原始數據）
+Key features:
+- Implementation of Galois Field GF(2^8) arithmetic
+- Support for configurable data shards and parity shards
+- JSON input/output support
+- Systematic encoding (original data is preserved)
 
-## 2. 數學背景
+## 2. Mathematical Background
 
-### Galois Field 理論
+### Galois Field Theory
 
-Reed-Solomon 編碼在 Galois Field（有限域）上運作。此實現使用 GF(2^8)，其特點如下：
-- 包含 256 個元素（0 到 255）
-- 使用多項式算術模一個不可約多項式
-- 所有運算（加法、減法、乘法、除法）都在該域內封閉
+Reed-Solomon encoding operates on Galois Fields (finite fields). This implementation uses GF(2^8), which:
+- Contains 256 elements (0 to 255)
+- Uses polynomial arithmetic modulo an irreducible polynomial
+- All operations (addition, subtraction, multiplication, division) are closed within the field
 
-### Reed-Solomon 編碼理論
+### Reed-Solomon Coding Theory
 
-Reed-Solomon 碼基於有限域上的多項式插值：
-- 數據被視為多項式的係數
-- 編碼涉及在特定點評估該多項式
-- 編碼消息由原始數據和多項式評估組成
-- 錯誤更正能力取決於冗餘（奇偶校驗）符號的數量
-- 擁有 `n` 個奇偶校驗符號時，可以更正最多 `n/2` 個錯誤
+Reed-Solomon codes are based on polynomial interpolation over finite fields:
+- Data is treated as coefficients of a polynomial
+- Encoding involves evaluating this polynomial at specific points
+- The encoded message consists of the original data plus the polynomial evaluations
+- Error correction capability depends on the number of redundant (parity) symbols
+- With `n` parity symbols, up to `n/2` errors can be corrected
 
-### 拉格朗日插值
+### Lagrange Interpolation
 
-編碼器使用 Lagrange interpolation 來計算奇偶校驗分片：
-- 創建一個通過給定數據點的多項式
-- 在不同點評估該多項式以生成奇偶校驗數據
-- 此方法確保了編碼的系統性特性（保留原始數據）
+The encoder uses Lagrange interpolation to calculate parity shards:
+- Creates a polynomial that passes through given data points
+- Evaluates this polynomial at different points to generate parity data
+- This approach ensures the systematic property of the encoding (original data preserved)
 
-## 3. 實現細節
+## 3. Implementation Details
 
-### GF(2^8) 實現
+### GF(2^8) Implementation
 
-- 預計算指數和對數表以提高域運算的效率
-- 實現的域運算：
-  - 加法（XOR 操作）
-  - 減法（在 GF(2^8) 中與加法相同）
-  - 乘法（使用對數表）
-  - 除法（使用對數表）
-  - 幂和逆運算
+- Exponent and logarithm tables are pre-computed for efficient field operations
+- Field operations implemented:
+  - Addition (XOR operation)
+  - Subtraction (same as addition in GF(2^8))
+  - Multiplication (using logarithm tables)
+  - Division (using logarithm tables)
+  - Power and inverse functions
 
-### Reed-Solomon 編碼器
+### Reed-Solomon Encoder
 
-實現了兩種編碼方法：
-1. **Lagrange Interpolation Method**：
-   - 構建一個通過數據點的多項式
-   - 在特定點評估該多項式以生成奇偶校驗分片
+Two encoding methods are implemented:
+1. **Lagrange Interpolation Method**:
+   - Constructs a polynomial passing through data points
+   - Evaluates the polynomial at specific points to generate parity shards
 
-2. **Efficient Encoding Method**：
-   - 使用 Horner's method 進行多項式評估
-   - 對於較大數據集更具計算效率
+2. **Efficient Encoding Method**:
+   - Uses Horner's method for polynomial evaluation
+   - More computationally efficient for larger datasets
 
-### 文件 I/O 處理
+### File I/O Handling
 
-- 使用 JSON 格式進行輸入/輸出
-- 支持從 JSON 文件中讀取消息
-- 支持將編碼數據寫入 JSON 文件，並包含原始消息
+- JSON format used for input/output
+- Support for reading messages from JSON files
+- Support for writing encoded data to JSON files with original message included
 
-## 4. 使用說明
+## 4. Usage Instructions
 
-### 前置條件
+### Prerequisites
 
-- Go 編程語言（建議使用 1.16 或更高版本）
-- 不需要外部依賴
+- Go programming language (1.16 or later recommended)
+- No external dependencies required
 
-### 構建專案
+### Building the Project
 
 ```bash
-# 克隆倉庫
+# Clone the repository
 git clone [repository-url]
 cd rs-encoder
 
-# 構建專案
+# Build the project
 go build -o rs-encoder cmd/main.go
 ```
 
-### 運行編碼器
+### Running the Encoder
 
 ```bash
-# 基本用法
+# Basic usage
 ./rs-encoder <input-file> <output-file>
 
-# 示例
-./rs-encoder data/message.json data/encoded.json
+# Example
+./rs-encoder data/message.json encoded.json
 ```
 
-### 輸入格式
+### Input Format
 
-輸入的 JSON 文件應具有以下格式：
+The input JSON file should have the following format:
 ```json
 {
   "message": [
@@ -105,9 +105,9 @@ go build -o rs-encoder cmd/main.go
 }
 ```
 
-### 輸出格式
+### Output Format
 
-輸出的 JSON 文件將具有以下格式：
+The output JSON file will have the following format:
 ```json
 {
   "message": [
@@ -121,11 +121,11 @@ go build -o rs-encoder cmd/main.go
 }
 ```
 
-其中 `encoded` 中的前 6 個值是原始消息，最後 12 個值是奇偶校驗數據。
+Where the first 6 values in `encoded` are the original message, and the last 12 values are the parity data.
 
-### 配置
+### Configuration
 
-可以修改 `main.go` 中的常量來更改：
-- 在有限域中使用的原始多項式
-- 數據分片的數量
-- 奇偶校驗分片的數量 
+Constants in `main.go` can be modified to change:
+- The primitive polynomial used in the finite field
+- The number of data shards
+- The number of parity shards
