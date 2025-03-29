@@ -51,14 +51,10 @@ The encoder uses Lagrange interpolation to calculate parity shards:
 
 ### Reed-Solomon Encoder
 
-Two encoding methods are implemented:
+The encoder implements the following encoding method:
 1. **Lagrange Interpolation Method**:
    - Constructs a polynomial passing through data points
    - Evaluates the polynomial at specific points to generate parity shards
-
-2. **Efficient Encoding Method**:
-   - Uses Horner's method for polynomial evaluation
-   - More computationally efficient for larger datasets
 
 ### File I/O Handling
 
